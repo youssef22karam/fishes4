@@ -1,0 +1,10 @@
+import './headless.mjs';
+import { pathToFileURL } from 'node:url'; import { resolve } from 'node:path';
+const root = resolve(new URL('..', import.meta.url).pathname), eng = f => pathToFileURL(resolve(root, 'src/engine', f)).href;
+const { FG } = await import(eng('fishgen.js')); const { initProcGen, fromSeed } = await import(eng('procgen.js')); initProcGen(FG);
+const f = fromSeed('Q1CW5'), fish = FG.buildFish(JSON.parse(JSON.stringify(f.genome)), { quality: 'med' });
+const M = fish.group.children; const mats = fish.materials; const nm = m => Object.entries(mats).find(([k, v]) => v === m)?.[0];
+M.forEach((m, i) => console.log(i, m.type, nm(m.material), m.geometry?.index?.count / 3, Object.keys(m.userData)));
+const m = M[M.length - 1], P = m.geometry.getAttribute('position'), A = m.geometry.getAttribute('aBody');
+for (let i = 0; i < P.count; i++) console.log(i, [P.getX(i), P.getY(i), P.getZ(i)].map(v => v.toFixed(4)).join(' '), A && [A.getX(i), A.getY(i), A.getZ(i), A.getW(i)].map(v => v.toFixed(3)).join(' '));
+console.log([...m.geometry.index.array].join(','));
